@@ -33,7 +33,7 @@ public class Hotel implements Serializable{
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, mappedBy = "hotel")
     @JsonIgnore
-    private List<Cliente> cliente;
+    private List<Cliente> clientes;
 
     
 }
