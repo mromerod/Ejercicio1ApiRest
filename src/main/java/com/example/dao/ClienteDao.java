@@ -14,7 +14,7 @@ public interface ClienteDao extends JpaRepository<Cliente,Long> {
 
 
      //Recupera lista de Clientes ordenados y trae los hoteles y mascotas
-     @Query(value = "select c from Cliente c left join fetch c.hotel left join fetch c.mascota") //consultas a las entidades hql
+     @Query(value = "select c from Cliente c inner join fetch c.hotel left join fetch c.mascota") //consultas a las entidades hql
      public List<Cliente> findAll(Sort sort);
 
 
