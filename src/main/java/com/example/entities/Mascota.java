@@ -3,9 +3,7 @@ package com.example.entities;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -18,7 +16,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,8 +36,6 @@ public class Mascota implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotEmpty(message = "El nombre no puede estar vacío")
-    @Size(min = 4, max = 25, message = "El nombre tiene que estar entre 4 y 25 caracteres")
     private String nombre;
 
     @NotEmpty(message = "El campo <raza> no puede estar vacío")
@@ -48,10 +43,10 @@ public class Mascota implements Serializable {
     private String raza;
 
 
-    @NotEmpty(message = "El campo <genero> no puede estar vacío")
+    @Enumerated(EnumType.STRING)
     private Genero genero;
 
-    @NotEmpty(message = "El campo <fecha de nacimiento> no puede estar vacío")
+    
     private LocalDate fechaDeNacimiento;
 
    
@@ -62,7 +57,7 @@ public class Mascota implements Serializable {
     }
 
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JsonIgnore
     @JsonManagedReference
     private Cliente cliente;

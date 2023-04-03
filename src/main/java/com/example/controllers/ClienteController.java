@@ -14,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,33 +30,33 @@ import com.example.model.FileUploadResponse;
 import com.example.services.ClienteService;
 import com.example.utilities.FileUploadUtil;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
 
 @RestController
 @RequestMapping("/clientes")
 @RequiredArgsConstructor
 
 public class ClienteController {
-    
+
     @Autowired
     private ClienteService clienteService;
-    
+
     @Autowired
     private FileUploadUtil fileUploadUtil;
 
     @GetMapping
     public ResponseEntity<List<Cliente>> findAll(@RequestParam(name = "page", required = false) Integer page,
-                                    @RequestParam(name = "size", required = false) Integer size) {
+            @RequestParam(name = "size", required = false) Integer size) {
 
         ResponseEntity<List<Cliente>> responseEntity = null;
         List<Cliente> clientes = new ArrayList<>();
 
         Sort sortByNombre = Sort.by("nombre");
 
-        if(page != null && size != null) {
-            
+        if (page != null && size != null) {
+
             try {
                 Pageable pageable = PageRequest.of(page, size, sortByNombre);
                 Page<Cliente> clientePaginados = clienteService.findAll(pageable);
@@ -65,55 +64,52 @@ public class ClienteController {
                 responseEntity = new ResponseEntity<List<Cliente>>(clientes, HttpStatus.OK);
             } catch (Exception e) {
                 responseEntity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            } 
+            }
         } else {
-                try {
-                    clientes = clienteService.findAll(sortByNombre);
-                    responseEntity = new ResponseEntity<List<Cliente>>(clientes, HttpStatus.OK);
-                } catch (Exception e) {
-                    responseEntity = new ResponseEntity<>(HttpStatus.NO_CONTENT);
-                }
-            
+            try {
+                clientes = clienteService.findAll(sortByNombre);
+                responseEntity = new ResponseEntity<List<Cliente>>(clientes, HttpStatus.OK);
+            } catch (Exception e) {
+                responseEntity = new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
         }
 
-
-        return responseEntity;                                
+        return responseEntity;
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> findById(@PathVariable(name = "id") Integer id) {
 
-       ResponseEntity<Map<String, Object>> responseEntity = null;
-       Map<String, Object> responseAsMap = new HashMap<>();
-           
-       try {
-        Cliente cliente = clienteService.findById(id);
+        ResponseEntity<Map<String, Object>> responseEntity = null;
+        Map<String, Object> responseAsMap = new HashMap<>();
 
-           if(cliente != null) {
-               String successMessage = "Se ha encontrado el cliente con id: " + id;
-               responseAsMap.put("mensaje", successMessage);
-               responseAsMap.put("cliente", cliente);
-               responseEntity = new ResponseEntity<Map<String, Object>>(responseAsMap, HttpStatus.OK);
-           } else{
-               String errorMessage = "No se ha encontrado el cliente con el id: " + id;
-               responseAsMap.put("error", errorMessage);
-               responseEntity = new ResponseEntity<Map<String,Object>>(responseAsMap, HttpStatus.NOT_FOUND);
-           }
+        try {
+            Cliente cliente = clienteService.findById(id);
 
-       } catch (Exception e) {
+            if (cliente != null) {
+                String successMessage = "Se ha encontrado el cliente con id: " + id;
+                responseAsMap.put("mensaje", successMessage);
+                responseAsMap.put("cliente", cliente);
+                responseEntity = new ResponseEntity<Map<String, Object>>(responseAsMap, HttpStatus.OK);
+            } else {
+                String errorMessage = "No se ha encontrado el cliente con el id: " + id;
+                responseAsMap.put("error", errorMessage);
+                responseEntity = new ResponseEntity<Map<String, Object>>(responseAsMap, HttpStatus.NOT_FOUND);
+            }
 
-           String errorGrave = "Error grave";
-           responseAsMap.put("error", errorGrave);
-           responseEntity = new ResponseEntity<Map<String, Object>>(responseAsMap, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
 
-       }
+            String errorGrave = "Error grave";
+            responseAsMap.put("error", errorGrave);
+            responseEntity = new ResponseEntity<Map<String, Object>>(responseAsMap, HttpStatus.INTERNAL_SERVER_ERROR);
 
-       return responseEntity;
+        }
+
+        return responseEntity;
     }
 
-//Persistir un cliente con su imagen, guardar
-
-
+    //Guardar un cliente con su imagen,
 
 @PostMapping(consumes = "multipart/form-data")
 @Transactional
@@ -153,7 +149,7 @@ ResponseEntity <Map<String,Object>> responseEntity = null;
  if(!file.isEmpty()){
    
   String fileCode = fileUploadUtil.saveFile(file.getOriginalFilename(), file);
-  cliente.setImagenMascota(fileCode);(fileCode+ "-" + file.getOriginalFilename());
+  cliente.setImagenMascota(fileCode+ "-" + file.getOriginalFilename());
 
   //DEvolver informacion respecto al producto recibido
 
@@ -167,11 +163,12 @@ ResponseEntity <Map<String,Object>> responseEntity = null;
  Cliente clienteDB = clienteService.save(cliente);
  
  try {
-    if(clienteDB != null){ 
-    String mensaje = "El cliente se ha guardado exitosamente";
-    responseAsMap.put("mensaje", mensaje);
-    responseAsMap.put("cliente", cliente);
-    responseEntity = new ResponseEntity<Map<String,Object>>(responseAsMap, HttpStatus.CREATED);
+    if(clienteDB != null){
+
+        String mensaje = "El cliente se ha guardado exitosamente";
+        responseAsMap.put("mensaje", mensaje);
+        responseAsMap.put("cliente", cliente);
+        responseEntity = new ResponseEntity<Map<String,Object>>(responseAsMap, HttpStatus.CREATED);
     
      }else {
     
@@ -190,10 +187,10 @@ ResponseEntity <Map<String,Object>> responseEntity = null;
 
     responseEntity = new ResponseEntity<Map<String,Object>>(responseAsMap, HttpStatus.INTERNAL_SERVER_ERROR);
  }
-
-
 return responseEntity;
 
 }
+
+
 
 }
